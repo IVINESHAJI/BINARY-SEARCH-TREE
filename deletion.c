@@ -2,125 +2,125 @@
 #include <stdlib.h>
 
 struct Node {
-    struct Node *lchild;
+    struct Node* lchild;
     int data;
-    struct Node *rchild;
+    struct Node* rchild;
 };
 
-
-struct Node *insert(struct Node *Node, int data) {
-    if (Node == NULL) {
-        struct Node *newNode = (struct Node *) malloc(sizeof(struct Node));
+struct Node* insert(struct Node* root, int data) {
+    if (root == NULL) {
+        struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+        newNode->data = data;
         newNode->lchild = NULL;
         newNode->rchild = NULL;
-        newNode->data = data;
         printf("%d added successfully\n", data);
         return newNode;
-    }
-    else if (Node->data > data) {
-        Node->lchild = insert(Node->lchild, data);
     } 
-    else if (Node->data < data) {
-        Node->rchild = insert(Node->rchild, data);
+    
+    else if (data < root->data) {
+        root->lchild = insert(root->lchild, data);
     } 
+    
+    else if (data > root->data) {
+        root->rchild = insert(root->rchild, data);
+    } 
+    
     else {
         printf("%d already exists\n", data);
     }
-    return Node;
+    return root;
 }
 
-void Inorder(struct Node* Node) {
-    if (Node != NULL) {
-        Inorder(Node->lchild);
-        printf("%d\t", Node->data);
-        Inorder(Node->rchild);
+void inorder(struct Node* root) {
+    if (root != NULL) {
+        inorder(root->lchild);
+        printf("%d\t", root->data);
+        inorder(root->rchild);
     }
 }
 
-struct Node *search(struct Node *Node,int data) {
+struct Node* findMin(struct Node* root) {
 
-    if (Node == NULL) {
+    if (root == NULL) {
         return NULL;
-    }
-
-    if (Node -> data == data) {
-        return Node;
-    }
-
+    } 
+    
+    else if (root->lchild == NULL) {
+        return root;
+    } 
+    
     else {
-
-        if (Node -> data > data) {
-            return search(Node -> lchild,data);
-        }
-
-        else {
-            return search(Node -> rchild,data);
-        }
-
+        return findMin(root->lchild);
     }
-
 }
 
-struct Node *delete(struct Node *Node, int data) {
+struct Node* deleteNode(struct Node* root, int data) {
+    
+    if (root == NULL) {
 
-    struct Node *delNode = search(Node, data);
+        printf("%d not found in the BST\n", data);
+        return root;
 
-    if (delNode == NULL) {
-        printf("%d not found in Binary Search Tree\n", data);
-        return Node;
     }
 
-    struct Node *temp = delNode;
+    if (data < root->data) {
 
-    if (temp->rchild != NULL) {
+        root->lchild = deleteNode(root->lchild, data);
 
-        temp = temp->lchild;
+    } 
+    
+    else if (data > root->data) {
 
-        while (temp->rchild != NULL) {
-            temp = temp->rchild;
-        }
+        root->rchild = deleteNode(root->rchild, data);
 
-        delNode->data = temp->data;
-        free(temp);
-    }
-
-    else if (temp->lchild != NULL) {
-
-        temp = temp->rchild;
-
-        while (temp->lchild != NULL) {
-            temp = temp->lchild;
-        }
-
-        delNode->data = temp->data;
-        free(temp);
-    }
-
+    } 
+    
     else {
+        
+        // Node with one child or no child
+        if (root->lchild == NULL) {
+            
+            struct Node* temp = root->rchild;
+            free(root);
+            printf("%d deleted successfully\n", data);
+            return temp;
 
-        free(delNode);
-        delNode = NULL;
+        } 
+        
+        else if (root -> rchild == NULL) {
+
+            struct Node* temp = root -> lchild;
+            free(root);
+            printf("%d deleted successfully\n", data);
+            return temp;
+
+        }
+
+        // Node with two children
+        struct Node* temp = findMin(root -> rchild);
+        root -> data = temp -> data;
+        root -> rchild = deleteNode(root -> rchild, temp -> data);
     }
 
-    printf("%d Deleted Successfully.\n", data);
-    return Node;
+    return root;
 }
-
 
 int main() {
-    struct Node *head = NULL;
+    struct Node* head = NULL;
     head = insert(head, 25);
 
-    insert(head, 50);
-    insert(head, 27);
-    insert(head, 28);
-    insert(head, 30);
-    insert(head, 30);
-    insert(head, 45);
+    head = insert(head, 50);
+    head = insert(head, 27);
+    head = insert(head, 28);
+    head = insert(head, 30);
+    head = insert(head, 30);
+    head = insert(head, 45);
 
-    delete(head, 25);
-    delete(head,100);
-    Inorder(head);
+    head = deleteNode(head, 25);
+    head = deleteNode(head, 100);
+    head = deleteNode(head, 25);
+
+    inorder(head);
 
     return 0;
 }
